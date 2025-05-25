@@ -2,7 +2,7 @@
 
 > A comprehensive system for managing hotel reservations.
 
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Last Commit](https://img.shields.io/github/last-commit/USER_NAME/REPO_NAME)](https://github.com/USER_NAME/REPO_NAME/commits/main) [![Languages](https://img.shields.io/github/languages/count/USER_NAME/REPO_NAME)](https://github.com/USER_NAME/REPO_NAME)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Last Commit](https://img.shields.io/github/last-commit/haniluvr/hotel-reservation-systemE)](https://github.com/haniluvr/hotel-reservation-system/commits/main) [![Languages](https://img.shields.io/github/languages/count/haniluvr/hotel-reservation-system)](https://github.com/haniluvr/hotel-reservation-system)
 
 ## Built With
 
