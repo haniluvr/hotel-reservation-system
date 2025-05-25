@@ -1,0 +1,14 @@
+// In ReservationCalculator.java:
+private Connection getConnection() throws SQLException {
+    return DriverManager.getConnection(
+        "jdbc:mysql://localhost:3306/hotel_db", // Your database name
+        "root", // MySQL username
+        "" // MySQL password
+    );
+}
+
+package java;
+
+public class ReservationCalculator {
+
+}

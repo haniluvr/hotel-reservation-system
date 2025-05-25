@@ -1,0 +1,554 @@
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.awt.event.*;
+import java.sql.*;
+import java.text.DecimalFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import com.toedter.calendar.JDateChooser;
+import java.util.Date; // For JDateChooser's Date
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+
+public class HotelManagementSystem extends JFrame {
+    private static final long serialVersionUID = 1L;
+    private static final String USERNAME = "admin";
+    private static final String PASSWORD = "admin";
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/hotel_db?useSSL=false&allowPublicKeyRetrieval=true";
+    private static final String DB_USER = "root";
+    private static final String DB_PASS = "";
+
+    private JTable reservationTable;
+    private JLabel[] detailLabels = new JLabel[9];
+    private DefaultTableModel tableModel;
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            // Login screen
+            JFrame loginFrame = new JFrame("Login");
+            loginFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            loginFrame.setSize(300, 200);
+            loginFrame.setLayout(new GridLayout(3, 2));
+
+            JTextField usernameField = new JTextField();
+            JPasswordField passwordField = new JPasswordField();
+            JButton loginButton = new JButton("Login");
+
+            loginFrame.add(new JLabel("Username:"));
+            loginFrame.add(usernameField);
+            loginFrame.add(new JLabel("Password:"));
+            loginFrame.add(passwordField);
+            loginFrame.add(loginButton);
+            loginFrame.setVisible(true);
+
+            loginButton.addActionListener(e -> {
+                String enteredUsername = usernameField.getText();
+                char[] enteredPassword = passwordField.getPassword();
+
+                if (enteredUsername.equals(USERNAME) && 
+                    new String(enteredPassword).equals(PASSWORD)) {
+                    loginFrame.dispose();
+                    new HotelManagementSystem().setVisible(true);
+                } else {
+                    JOptionPane.showMessageDialog(loginFrame, 
+                        "Invalid username/password", "Error", 
+                        JOptionPane.ERROR_MESSAGE);
+                }
+            });
+        });
+    }
+
+    public HotelManagementSystem() {
+        setTitle("Hotel Reservation System");
+        setSize(1200, 800);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+
+        // Initialize table model
+        String[] columns = {"ID", "First Name", "Last Name", "Email",
+                           "Arrival Date", "Departure Date", "Room Type",
+                           "Adults", "Children", "Promo Code"};
+        tableModel = new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // Prevent editing
+            }
+        };
+        reservationTable = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(reservationTable);
+
+        // Initialize detail labels
+        JPanel detailPanel = new JPanel(new GridLayout(9, 2, 10, 10));
+        for (int i = 0; i < 9; i++) {
+            detailLabels[i] = new JLabel();
+            detailPanel.add(new JLabel(getLabelNames()[i]));
+            detailPanel.add(detailLabels[i]);
+        }
+
+        // Add buttons panel
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.TRAILING));
+        JButton addButton = new JButton("Add");
+        JButton editButton = new JButton("Edit");
+        JButton deleteButton = new JButton("Delete");
+        JButton refreshButton = new JButton("Refresh Table");
+        JButton calculateButton = new JButton("Calculate");
+
+        // Add button listeners
+        addButton.addActionListener(new AddListener());
+        editButton.addActionListener(new EditListener());
+        deleteButton.addActionListener(new DeleteListener());
+        refreshButton.addActionListener(e -> populateReservationTable());
+        calculateButton.addActionListener(new CalculateListener());
+
+        // Add components to button panel
+        buttonPanel.add(addButton);
+        buttonPanel.add(editButton);
+        buttonPanel.add(deleteButton);
+        buttonPanel.add(refreshButton);
+        buttonPanel.add(calculateButton);
+
+        // Add everything to frame
+        add(scrollPane, BorderLayout.CENTER);
+        add(detailPanel, BorderLayout.EAST);
+        add(buttonPanel, BorderLayout.SOUTH);
+
+        // Populate table on startup
+        populateReservationTable();
+
+        // Update details when row is selected
+        reservationTable.getSelectionModel().addListSelectionListener(
+            e -> updateDetailsFromSelection()
+        );
+    }
+
+    private String[] getLabelNames() {
+        return new String[]{
+            "First Name:", "Last Name:", "Email:",
+            "Arrival Date:", "Departure Date:", "Room Type:",
+            "Adults:", "Children:", "Promo Code:"
+        };
+    }
+
+    // --- Database Connection ---
+    private Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
+    }
+
+    // --- Populate Table ---
+    private void populateReservationTable() {
+        try (Connection conn = getConnection()) {
+            String sql = "SELECT r.*, p.discount FROM reservations r " +
+                        "LEFT JOIN promo_codes p ON r.promo_code = p.code";
+            try (PreparedStatement stmt = conn.prepareStatement(sql);
+                 ResultSet rs = stmt.executeQuery()) {
+
+                tableModel.setRowCount(0); // Clear existing data
+
+                while (rs.next()) {
+                    Object[] row = {
+                        rs.getInt("id"),
+                        rs.getString("first_name"),
+                        rs.getString("last_name"),
+                        rs.getString("email"),
+                        rs.getDate("arrival_date"),
+                        rs.getDate("departure_date"),
+                        rs.getString("room_type"),
+                        rs.getInt("adults"),
+                        rs.getInt("children"),
+                        rs.getString("promo_code")
+                    };
+                    tableModel.addRow(row);
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error loading reservations");
+        }
+    }
+
+    // --- Update Details Panel ---
+    private void updateDetailsFromSelection() {
+        int selectedRow = reservationTable.getSelectedRow();
+        if (selectedRow >= 0) {
+            DefaultTableModel model = (DefaultTableModel) reservationTable.getModel();
+
+            // Clear previous details
+            for (JLabel label : detailLabels) {
+                label.setText("");
+            }
+
+            // Update labels with selected data
+            detailLabels[0].setText(model.getValueAt(selectedRow, 1).toString());
+            detailLabels[1].setText(model.getValueAt(selectedRow, 2).toString());
+            detailLabels[2].setText(model.getValueAt(selectedRow, 3).toString());
+            detailLabels[3].setText(model.getValueAt(selectedRow, 4).toString());
+            detailLabels[4].setText(model.getValueAt(selectedRow, 5).toString());
+            detailLabels[5].setText(model.getValueAt(selectedRow, 6).toString());
+            detailLabels[6].setText(model.getValueAt(selectedRow, 7).toString());
+            detailLabels[7].setText(model.getValueAt(selectedRow, 8).toString());
+            detailLabels[8].setText(model.getValueAt(selectedRow, 9).toString());
+        }
+    }
+
+    // --- Calculate Total Price ---
+    private class CalculateListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try (Connection conn = getConnection()) {
+                int selectedRow = reservationTable.getSelectedRow();
+                if (selectedRow < 0) {
+                    JOptionPane.showMessageDialog(HotelManagementSystem.this, 
+                        "Select a reservation first");
+                    return;
+                }
+
+                // Get reservation details
+                String roomType = tableModel.getValueAt(selectedRow, 6).toString();
+                LocalDate arrival = LocalDate.parse(
+                    ((Date) tableModel.getValueAt(selectedRow, 4)).toString()
+                );
+                LocalDate departure = LocalDate.parse(
+                    ((Date) tableModel.getValueAt(selectedRow, 5)).toString()
+                );
+                Object promoCodeObj = tableModel.getValueAt(selectedRow, 9);
+                String promoCode = (promoCodeObj != null) ? promoCodeObj.toString() : "";
+
+                // Get discount from promo_code
+                double discount = 0;
+                if (!promoCode.isEmpty()) {
+                    try (PreparedStatement stmt = conn.prepareStatement(
+                        "SELECT discount FROM promo_codes WHERE code = ?"
+                    )) {
+                        stmt.setString(1, promoCode);
+                        ResultSet rs = stmt.executeQuery();
+                        if (rs.next()) {
+                            discount = rs.getDouble("discount");
+                        }
+                    }
+                }
+
+                // Calculate price
+                double basePrice = getRoomPrice(conn, roomType);
+                long nights = ChronoUnit.DAYS.between(arrival, departure);
+                double total = basePrice * nights;
+                if (discount > 0) {
+                    total -= total * (discount / 100);
+                }
+
+                // Show result
+                DecimalFormat df = new DecimalFormat("#,##0.00");
+                JOptionPane.showMessageDialog(
+                    HotelManagementSystem.this, 
+                    "Total Amount: ₱" + df.format(total),
+                    "Calculation Result",
+                    JOptionPane.INFORMATION_MESSAGE
+                );
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(
+                    HotelManagementSystem.this, 
+                    "Error calculating total: " + ex.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+                );
+            }
+        }
+
+        private double getRoomPrice(Connection conn, String roomType) 
+            throws SQLException {
+            String sql = "SELECT price_per_night FROM rooms WHERE room_type = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setString(1, roomType);
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next()) return rs.getDouble("price_per_night");
+            }
+            return 0;
+        }
+    }
+
+    // --- Add Reservation Dialog ---
+    private class AddListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            AddEditDialog dialog = new AddEditDialog(
+                "Add New Reservation", 
+                "", "", "", "", "", "", 
+                "", "0", "0", "", 
+                "Add"
+            );
+            dialog.setVisible(true);
+        }
+    }
+
+    // --- Edit Reservation Dialog ---
+    private class EditListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            int selectedRow = reservationTable.getSelectedRow();
+            if (selectedRow < 0) return;
+
+            String id = tableModel.getValueAt(selectedRow, 0).toString();
+            String firstName = tableModel.getValueAt(selectedRow, 1).toString();
+            String lastName = tableModel.getValueAt(selectedRow, 2).toString();
+            String email = tableModel.getValueAt(selectedRow, 3).toString();
+            String arrival = ((Date) tableModel.getValueAt(selectedRow, 4)).toString();
+            String departure = ((Date) tableModel.getValueAt(selectedRow, 5)).toString();
+            String roomType = tableModel.getValueAt(selectedRow, 6).toString();
+            String adults = tableModel.getValueAt(selectedRow, 7).toString();
+            String children = tableModel.getValueAt(selectedRow, 8).toString();
+            Object promoCodeObj = tableModel.getValueAt(selectedRow, 9);
+            String promoCode = (promoCodeObj != null) ? promoCodeObj.toString() : "";
+
+            AddEditDialog dialog = new AddEditDialog(
+                "Edit Reservation",
+                id, firstName, lastName, email, arrival, departure,
+                roomType, adults, children, promoCode, 
+                "Edit"
+            );
+            dialog.setVisible(true);
+        }
+    }
+
+    // --- Delete Reservation ---
+    private class DeleteListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            int selectedRow = reservationTable.getSelectedRow();
+            if (selectedRow < 0) return;
+
+            String id = tableModel.getValueAt(selectedRow, 0).toString();
+            int confirm = JOptionPane.showConfirmDialog(
+                HotelManagementSystem.this,
+                "Confirm deletion?",
+                "Delete",
+                JOptionPane.YES_NO_OPTION
+            );
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                try (Connection conn = getConnection();
+                     PreparedStatement stmt = conn.prepareStatement(
+                         "DELETE FROM reservations WHERE id = ?"
+                     )) {
+                    stmt.setString(1, id);
+                    stmt.executeUpdate();
+                    populateReservationTable();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(
+                        HotelManagementSystem.this,
+                        "Deletion failed: " + ex.getMessage()
+                    );
+                }
+            }
+        }
+    }
+
+    // --- Add/Edit Dialog Class ---
+    private class AddEditDialog extends JDialog {
+        private final String actionType;
+        private JTextField idField, firstNameField, lastNameField, emailField;
+        private JDateChooser arrivalChooser, departureChooser;
+        private JComboBox<String> roomTypeComboBox;
+        private JTextField adultsField, childrenField, promoCodeField;
+
+        public AddEditDialog(String title, 
+                            String id, 
+                            String firstName, 
+                            String lastName, 
+                            String email, 
+                            String arrivalStr, 
+                            String departureStr, 
+                            String roomType, 
+                            String adults, 
+                            String children, 
+                            String promoCode, 
+                            String action) {
+            super(HotelManagementSystem.this);
+            this.actionType = action;
+            setTitle(title);
+            setSize(400, 600);
+            setLayout(new GridLayout(15, 2)); // 12 rows, 2 columns
+
+            // Initialize fields in correct order
+            idField = new JTextField(id);
+            idField.setEditable(false);
+            add(new JLabel("ID:"), 1, 0);
+            add(idField, 1, 1);
+
+            firstNameField = new JTextField(firstName);
+            add(new JLabel("First Name:"), 2, 0);
+            add(firstNameField, 2, 1);
+
+            lastNameField = new JTextField(lastName);
+            add(new JLabel("Last Name:"), 3, 0);
+            add(lastNameField, 3, 1);
+
+            emailField = new JTextField(email);
+            add(new JLabel("Email:"), 4, 0);
+            add(emailField, 4, 1);
+
+            // Arrival Date Picker
+            arrivalChooser = new JDateChooser();
+            arrivalChooser.setDateFormatString("yyyy-MM-dd");
+            if (!arrivalStr.isEmpty()) {
+                arrivalChooser.setDate(java.sql.Date.valueOf(arrivalStr));
+            }
+            add(new JLabel("Arrival Date:"), 5, 0);
+            add(arrivalChooser, 5, 1);
+
+            // Departure Date Picker
+            departureChooser = new JDateChooser();
+            departureChooser.setDateFormatString("yyyy-MM-dd");
+            if (!departureStr.isEmpty()) {
+                departureChooser.setDate(java.sql.Date.valueOf(departureStr));
+            }
+            add(new JLabel("Departure Date:"), 6, 0);
+            add(departureChooser, 6, 1);
+
+            // Room Type ComboBox
+            String[] roomTypes = {
+                "Single Room", 
+                "Double Room", 
+                "Deluxe Room", 
+                "Junior Suite", 
+                "Suite", 
+                "Executive Suite"
+            };
+            roomTypeComboBox = new JComboBox<>(roomTypes);
+            if (!roomType.isEmpty()) {
+                roomTypeComboBox.setSelectedItem(roomType);
+            }
+            add(new JLabel("Room Type:"), 7, 0);
+            add(roomTypeComboBox, 7, 1);
+
+            adultsField = new JTextField(adults);
+            add(new JLabel("Adults:"), 8, 0);
+            add(adultsField, 8, 1);
+
+            childrenField = new JTextField(children);
+            add(new JLabel("Children:"), 9, 0);
+            add(childrenField, 9, 1);
+
+            promoCodeField = new JTextField(promoCode);
+            add(new JLabel("Promo Code:"), 10, 0);
+            add(promoCodeField, 10, 1);
+
+            // Add empty rows for spacing
+            add(new JLabel(""), 11, 0);
+            add(new JLabel(""), 11, 1);
+
+            // Save button at the bottom
+            JButton saveButton = new JButton("Save");
+            saveButton.addActionListener(new SaveListener());
+            add(saveButton, 12, 0); // Place in last row, first column
+            add(new JLabel(""), 12, 1); // Empty second column for centering
+
+            pack();
+            setLocationRelativeTo(HotelManagementSystem.this);
+        }
+
+        private class SaveListener implements ActionListener {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try (Connection conn = getConnection()) {
+                    String firstName = firstNameField.getText();
+                    String lastName = lastNameField.getText();
+                    String email = emailField.getText();
+
+                    java.util.Date utilArrival = arrivalChooser.getDate();
+                    java.util.Date utilDeparture = departureChooser.getDate();
+                    String arrivalStr = utilArrival.toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate().format(DateTimeFormatter.ISO_DATE);
+                    String departureStr = utilDeparture.toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate().format(DateTimeFormatter.ISO_DATE);
+
+                    String roomType = (String) roomTypeComboBox.getSelectedItem();
+                    String adults = adultsField.getText();
+                    String children = childrenField.getText();
+                    String promoCode = promoCodeField.getText().trim();
+
+                    // Validate promo code
+                    if (!promoCode.isEmpty()) {
+                        try (PreparedStatement stmt = conn.prepareStatement(
+                            "SELECT discount FROM promo_codes WHERE code = ?"
+                        )) {
+                            stmt.setString(1, promoCode);
+                            ResultSet rs = stmt.executeQuery();
+                            if (!rs.next()) {
+                                JOptionPane.showMessageDialog(
+                                    HotelManagementSystem.this,
+                                    "Invalid promo code: " + promoCode,
+                                    "Error",
+                                    JOptionPane.ERROR_MESSAGE
+                                );
+                                return;
+                            }
+                        }
+                    }
+
+                    if (actionType.equals("Add")) {
+                        String sql = "INSERT INTO reservations " +
+                                    "(first_name, last_name, email, arrival_date, " +
+                                    "departure_date, room_type, adults, children, " +
+                                    "promo_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                            stmt.setString(1, firstName);
+                            stmt.setString(2, lastName);
+                            stmt.setString(3, email);
+                            stmt.setString(4, arrivalStr);
+                            stmt.setString(5, departureStr);
+                            stmt.setString(6, roomType);
+                            stmt.setString(7, adults);
+                            stmt.setString(8, children);
+                            stmt.setString(9, promoCode.isEmpty() ? null : promoCode);
+                            stmt.executeUpdate();
+                        }
+                    } else if (actionType.equals("Edit")) {
+                        String id = idField.getText();
+                        String sql = "UPDATE reservations SET " +
+                                    "first_name=?, last_name=?, email=?, " +
+                                    "arrival_date=?, departure_date=?, " +
+                                    "room_type=?, adults=?, children=?, " +
+                                    "promo_code=? WHERE id=?";
+                        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                            stmt.setString(1, firstName);
+                            stmt.setString(2, lastName);
+                            stmt.setString(3, email);
+                            stmt.setString(4, arrivalStr);
+                            stmt.setString(5, departureStr);
+                            stmt.setString(6, roomType);
+                            stmt.setString(7, adults);
+                            stmt.setString(8, children);
+                            stmt.setString(9, promoCode.isEmpty() ? null : promoCode);
+                            stmt.setString(10, id);
+                            stmt.executeUpdate();
+                        }
+                    }
+
+                    populateReservationTable();
+                    dispose();
+                } catch (SQLException ex) {
+                    JOptionPane.showMessageDialog(
+                        HotelManagementSystem.this, 
+                        "Error saving: " + ex.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE
+                    );
+                }
+            }
+        }
+    }
+
+    // --- Database Setup ---
+    static {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch (ClassNotFoundException ex) {
+            ex.printStackTrace();
+        }
+    }
+}

@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+        <title>Urban Escala — Where the Sea Meets Serenity</title>
+        <link rel="icon" type="image/x-icon" href="assets/logo.png">
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <!-- Anchor for navbar state detection -->
+        <div class="top-anchor"></div>
+
+        <!-- Navigation Bar -->
+        <nav class="navbar navbar-expand-lg fixed-top bg-light" id="mainNav">
+            <div class="container-fluid px-5">
+                <a class="navbar-brand d-flex align-items-center" href="#">
+                    <span style="color: #667f5f;">URBAN ESCALA</span>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">Services</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">About Us</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="d-flex">
+                    <button class="btn btn-outline-success me-2 rounded-pill">Login</button>
+                    <button class="btn btn-success rounded-pill">Register</button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="container h-100">
+                <div class="row h-100 align-items-center">
+                    <div class="col-lg-10">
+                        <h1 class="display-4 fw-bold lh-1 mb-4" style="color: white;">
+                            Experience the perfect blend of comfort and convenience with our seamless hotel booking app
+                        </h1>
+                        <button class="btn btn-success px-4 py-2 mt-4" style="background-color: #667f5f; border-color: #667f5f;">Explore Offers</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Booking Form -->
+        <div class="booking-form-container mb-5">
+            <div class="container-fluid bg-light rounded-pill p-3 d-flex justify-content-center">
+                <div class="row g-3 align-items-center">
+                    <div class="col">
+                        <label class="form-label d-flex align-items-center">
+                            <i class="fas fa-calendar-alt me-2"></i>
+                            Check in
+                        </label>
+                        <input type="date" class="form-control rounded-pill" id="checkin-date">
+                    </div>
+                    <div class="col">
+                        <label class="form-label d-flex align-items-center">
+                            <i class="fas fa-calendar-alt me-2"></i>
+                            Check out
+                        </label>
+                        <input type="date" class="form-control rounded-pill" id="checkout-date">
+                    </div>
+                    <div class="col">
+                        <label class="form-label d-flex align-items-center">
+                            <i class="fas fa-users me-2"></i>
+                            Guests
+                        </label>
+                        <select class="form-select rounded-pill">
+                            <option selected>2 Guests</option>
+                            <option>3 Guests</option>
+                            <option>4 Guests</option>
+                            <option>5 Guests</option>
+                            <option>6 Guests</option>
+                            <option>7 Guests</option>
+                            <option>8 Guests</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-3 justify-self-end">
+                        <button type="button" class="btn btn-success rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#bookingModal">
+                            <i class="fas fa-search me-2"></i>
+                            Check Availability
+                            <i class="fas fa-arrow-right ms-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Booking Form Modal -->
+        <div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content bg-light shadow-sm">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title" id="bookingModalLabel">Reservation Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="bookingForm">
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label for="firstName" class="form-label">First Name</label>
+                                    <input type="text" class="form-control rounded-pill" name="firstName" id="firstName" placeholder="Enter your first name" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="lastName" class="form-label">Last Name</label>
+                                    <input type="text" class="form-control rounded-pill" name="lastName" id="lastName" placeholder="Enter your last name" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control rounded-pill" name="email" id="email" placeholder="Enter your email" required>
+                            </div>
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label for="arrivalDate" class="form-label">Arrival Date</label>
+                                    <input type="date" class="form-control rounded-pill" name="arrivalDate" id="arrivalDate" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="departureDate" class="form-label">Departure Date</label>
+                                    <input type="date" class="form-control rounded-pill" name="departureDate" id="departureDate" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="roomType" class="form-label">Room Type</label>
+                                <select class="form-select rounded-pill" name="roomType" id="roomType" required>
+                                    <option value="">Select Room Type</option>
+                                    <option value="Single Room">Single Room</option>
+                                    <option value="Double Room">Double Room</option>
+                                    <option value="Deluxe Room">Deluxe Room</option>
+                                    <option value="Junior Suite">Junior Suite</option>
+                                    <option value="Suite">Suite</option>
+                                    <option value="Executive Suite">Executive Suite</option>
+                                </select>
+                            </div>
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label for="adults" class="form-label">Adults</label>
+                                    <select class="form-select rounded-pill" name="adults" id="adults" required>
+                                        <option value="">Select Number of Adults</option>
+                                        <option value="1">1 Adult</option>
+                                        <option value="2">2 Adults</option>
+                                        <option value="3">3 Adults</option>
+                                        <option value="4">4 Adults</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="children" class="form-label">Children</label>
+                                    <select class="form-select rounded-pill" name="children" id="children">
+                                        <option value="">Select Number of Children</option>
+                                        <option value="0">0 Children</option>
+                                        <option value="1">1 Child</option>
+                                        <option value="2">2 Children</option>
+                                        <option value="3">3 Children</option>
+                                        <option value="4">4 Children</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="promoCode" class="form-label">Promo Code (Optional)</label>
+                                <input type="text" class="form-control rounded-pill" name="promoCode" id="promoCode" placeholder="Enter promo code">
+                            </div>
+                            <div class="d-flex justify-content-center">
+                                <button type="submit" class="btn btn-success w-50 rounded-pill mt-4">Reserve Now</button>
+                                <script>
+                                    function submitForm() {
+                                        const form = document.getElementById('bookingForm');
+                                        const fd = new FormData(form);
+                                        
+                                        fetch('submit_reservation.php', {
+                                            method: 'POST',
+                                            body: fd
+                                        })
+                                        .then(response => response.text())
+                                        .then(data => {
+                                            alert('Reservation ID: ' + data);
+                                        });
+                                    }
+                                </script>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Photo Gallery -->
+        <section class="photo-gallery">
+            <div class="container">
+                <h1 class="text-start mb-5">Explore the hotel's<br>stunning photo gallery</h1>
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <img src="assets/gallery-1.jpg" class="img-fluid rounded-3"><br><br>
+                        <img src="assets/gallery-2.jpg" class="img-fluid rounded-3">
+                    </div>
+                    <div class="col-md-4">
+                        <img src="assets/gallery-3.jpg" class="img-fluid rounded-3">
+                    </div>
+                    <div class="col-md-4">
+                        <img src="assets/gallery-4.jpg" class="img-fluid rounded-3"><br><br>
+                        <img src="assets/gallery-5.jpg" class="img-fluid rounded-3">
+                    </div>
+                </div>
+                <div class="text-center mt-5">
+                    <button class="btn btn-outline-success px-4 py-2" style="border-color: #667f5f; color: #667f5f;">View More</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Available Rooms -->
+        <section class="available-rooms">
+            <div class="container">
+                <h1 class="mb-5">Available Rooms</h1>
+                <div class="row g-4">
+                    <!-- Room Card 1 -->
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <img src="assets/deluxe-room.jpg" class="card-img-top rounded-3">
+                            <div class="card-body p-3">
+                                <h5 class="card-title">Deluxe Room</h5>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <div><i class="bi bi-person-fill"></i> 4 Guests</div>
+                                    <div class="text-warning"><i class="bi bi-star-fill"></i> 4.8</div>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <div><i class="bi bi-bed"></i> 1 Bedroom, 1 King or 2 Queen, Pool or Balcony Access<br></div>
+                                </div>
+                                <div class="d-flex justify-content-between mt-4">
+                                    <div class="fw-bold">Php 4,800 / night</div>
+                                    <button class="btn btn-success px-4 py-2" style="background-color: #667f5f; border-color: #667f5f;">Book Now</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Room Card 2 -->
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <img src="assets/executive-suite.webp" class="card-img-top rounded-3">
+                            <div class="card-body p-3">
+                                <h5 class="card-title">Executive Suite</h5>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <div><i class="bi bi-person-fill"></i> 6 Guests</div>
+                                    <div class="text-warning"><i class="bi bi-star-fill"></i> 4.8</div>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <div><i class="bi bi-bed"></i> 2 Bedroom Suite, 1 King and 2 Queen, Pool or Lagoon Access</div>
+                                </div>
+                                <div class="d-flex justify-content-between mt-4">
+                                    <div class="fw-bold">Php. 8,500 / night</div>
+                                    <button class="btn btn-success px-4 py-2" style="background-color: #667f5f; border-color: #667f5f;">Book Now</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Room Card 3 -->
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <img src="assets/junior-suite.jpg" class="card-img-top rounded-3">
+                            <div class="card-body p-3">
+                                <h5 class="card-title">Junior Suite</h5>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <div><i class="bi bi-person-fill"></i> 4 Guests</div>
+                                    <div class="text-warning"><i class="bi bi-star-fill"></i> 4.7</div>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <div><i class="bi bi-bed"></i> 1 Bedroom Suite, 1 King or 2 Queen, Balcony or Lagoon Access</div>
+                                </div>
+                                <div class="d-flex justify-content-between mt-4">
+                                    <div class="fw-bold">Php. 5,500 / night</div>
+                                    <button class="btn btn-success px-4 py-2" style="background-color: #667f5f; border-color: #667f5f;">Book Now</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-end mt-4">
+                    <a href="#" class="text-success text-decoration-none" style="color: #667f5f;">View all</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Services Section -->
+        <section class="services">
+            <div class="container">
+                <h1 class="text-center mb-5">Our Services</h1>
+                <div class="row g-5 d-flex align-items-center">
+                    <div class="col-md-6 order-2">
+                        <img src="assets/service-1.jpg" class="img-fluid rounded-3">
+                    </div>    
+                    <div class="col-md-6 order-1">
+                        <h2 class="mb-4">Restaurant & Cafe</h2>
+                        <p>Step into our restaurant, where flavours and ambiance unite for an unforgettable experience. Our chefs blend local and international cuisine to tantalize every palate. Whether you seek gourmet indulgence or a casual meal, our diverse menu has you covered. Join us and elevate your dining journey to new heights.</p>
+                    </div>
+                </div>
+                <div class="row g-5 d-flex align-items-center mt-1">
+                    <div class="col-md-6 order-1">
+                        <img src="assets/service-2.jpg" class="img-fluid rounded-3">
+                    </div>    
+                    <div class="col-md-6 order-2">
+                        <h2 class="mb-4">Swimming pool</h2>
+                        <p>Escape to our serene swimming pool, surrounded by lush greenery. Whether you're swimming laps or lounging in the sun, our pool offers relaxation for all. Enjoy crystal-clear waters and attentive service in a tranquil atmosphere. It's the perfect retreat for guests seeking a refreshing getaway.</p>
+                    </div>
+                </div>
+                <div class="row g-5 d-flex align-items-center mt-1">
+                    <div class="col-md-6 order-2">
+                        <img src="assets/service-3.jpg" class="img-fluid rounded-3">
+                    </div>    
+                    <div class="col-md-6 order-1">
+                        <h2 class="mb-4">Library</h2>
+                        <p>Find peace in our cozy library, a haven for book lovers. Relax in comfortable seating as you explore our diverse collection of titles. Whether you're seeking a captivating story or a quiet spot to unwind, our library welcomes you to escape into the world of literature.</p>
+                    </div>
+                </div>
+                <div class="row g-5 d-flex align-items-center mt-1">
+                    <div class="col-md-6 order-1">
+                        <img src="assets/service-4.jpg" class="img-fluid rounded-3">
+                    </div>    
+                    <div class="col-md-6 order-2">
+                        <h2 class="mb-4">Gymnasium</h2>
+                        <p>Get fit in our modern gym. Whether you're new to exercise or a seasonal pro, our state-of-the-art equipment and expert trainers are here to help you reach your fitness goals. From cardio machines, to free weights, we have everything you need to stay active and healthy.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Customer Reviews -->
+`        <section class="customer-reviews">
+            <div class="container">
+                <h1 class="mb-5">Customer Reviews</h1>
+                <div class="review-container">
+                    <div class="review-card">
+                        <div class="review-quote">
+                            <i class="fas fa-quote-left fa-5x"></i>
+                            <p id="review-text">
+                                "Royal Hotel exceeded my expectations in every way. The location is perfect, the service is outstanding, and the amenities are top-notch. I will definitely be back!"
+                            </p>
+                        </div>
+                        <div class="review-details">
+                            <hr class="mt-2 mb-2" style="border-top: 1px solid #667f5f; width: 100%;"/>
+                            <div class="d-flex align-items-center">
+                                <img src="assets/profile3.jpg" alt="User Profile" class="rounded-circle me-2 active" width="40" id="profile-image">
+                                <div>
+                                    <strong id="author-name">Michael Johnson</strong>
+                                    <div class="stars" id="rating-stars">
+                                        <i class="fas fa-star text-warning"></i>
+                                        <i class="fas fa-star text-warning"></i>
+                                        <i class="fas fa-star text-warning"></i>
+                                        <i class="fas fa-star text-warning"></i>
+                                        <i class="fas fa-star text-warning"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="review-navigation">
+                        <button class="prev-review"><i class="fas fa-chevron-left fa-lg"></i></button>
+                        <button class="next-review"><i class="fas fa-chevron-right fa-lg"></i></button>
+                    </div>
+                </div>
+                <div class="profile-thumbnails">
+                    <div class="row g-2 justify-content-center">
+                        <!-- Person 1 -->
+                        <div class="col-auto">
+                            <img src="assets/profile1.jpg" alt="Profile 1" class="rounded-circle" width="40" data-author="David Asluigan" data-review="As a frequent traveler, I've had the pleasure of staying at various hotels, but Royal Hotel stands out as a truly exceptional experience. The accommodations were luxurious, the dining options were diverse and delicious, and the service was exceptional. From start to finish, I felt like royalty. Highly recommend!" data-rating="5">
+                        </div>
+
+                        <!-- Person 2 -->
+                        <div class="col-auto">
+                            <img src="assets/profile2.jpg" alt="Profile 2" class="rounded-circle" width="40" data-author="Emily Thompson" data-review="I had an incredible stay at Royal Hotel! The staff was incredibly friendly and accommodating. The rooms are beautifully designed and very comfortable. Highly recommended for anyone looking for a luxurious stay." data-rating="4">
+                        </div>
+
+                        <!-- Person 3 -->
+                        <div class="col-auto">
+                            <img src="assets/profile3.jpg" alt="Profile 3" class="rounded-circle" width="40" data-author="Michael Johnson" data-review="Royal Hotel exceeded my expectations in every way. The location is perfect, the service is outstanding, and the amenities are top-notch. I will definitely be back!" data-rating="5">
+                        </div>
+
+                        <!-- Person 4 -->
+                        <div class="col-auto">
+                            <img src="assets/profile4.jpg" alt="Profile 4" class="rounded-circle" width="40" data-author="Sarah Lee" data-review="What a fantastic hotel! The staff was attentive and the rooms were spotless. The breakfast included a variety of delicious options. I would highly recommend this hotel to anyone visiting the area." data-rating="4">
+                        </div>
+
+                        <!-- Person 5 -->
+                        <div class="col-auto">
+                            <img src="assets/profile5.jpg" alt="Profile 5" class="rounded-circle" width="40" data-author="Daniel Wilson" data-review="My stay at Royal Hotel was nothing short of amazing. The room was spacious and well-equipped. The staff went above and beyond to ensure our stay was comfortable. We'll definitely be back!" data-rating="5">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <div style="height: 13vh;"></div>
+        <!-- footer -->
+        <footer class="bg-light text-dark pt-4 pb-0" style="background-color: #667f5f !important; color: white;">
+            <div class="container pt-5 pb-5">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <h1 class="mb-3">URBAN ESCALA</h6>
+                        <p>Welcome to Urban Escala, where luxury meets impeccable service. Enjoy spaciours rooms, grourmet dining, and indulgent spa treatments. Let us make your stay in La Union unforgettable.</p>
+                        <p>&copy; 2025 Urban Escala. All rights reserved.</p>
+                    </div>
+                    <div class="col-sm-2"></div>
+                    <div class="col-sm-3">
+                        <div class="row">
+                            <div class="col">
+                                <h4 class="mb-3">Quick Links</h6>
+                                <ul class="list-unstyled">
+                                    <li><a href="#" class="text-white text-decoration-none">Home</a></li>
+                                    <li><a href="#" class="text-white text-decoration-none">About Us</a></li>
+                                    <li><a href="#" class="text-white text-decoration-none">Services</a></li>
+                                    <li><a href="#" class="text-white text-decoration-none">Contact Us</a></li>
+                                </ul>
+                            </div>
+                            <div class="col">
+                                <h4 class="mb-3">Service</h6>
+                                <ul class="list-unstyled">
+                                    <li><a href="#" class="text-white text-decoration-none">Help</a></li>
+                                    <li><a href="#" class="text-white text-decoration-none">Support</a></li>
+                                    <li><a href="#" class="text-white text-decoration-none">Contact</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <h4 class="mb-3">Contact Us</h6>
+                        <p><i class="fa-solid fa-phone"></i> (02) 1234 5678</p>
+                        <p><i class="fa-solid fa-envelope"></i> contact@urbanescala.com</p>
+                        <p><i class="fa-solid fa-location-dot"></i> 2972 Westheimer Rd. Santa Ana, London.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-end">
+                <div class="container">
+                    <div class="row">
+                        <div class="col">
+                            Our social media platforms, Get in touch with us
+                        </div>
+                        <div class="col text-end">
+                            <a href=""><i class="fa-brands fa-facebook-f"></i></a>
+                            <a href=""><i class="fa-brands fa-twitter"></i></a>
+                            <a href=""><i class="fa-brands fa-linkedin-in"></i></a>
+                            <a href=""><i class="fa-brands fa-instagram"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="script.js"></script>
+    </body>
+</html>

@@ -1,0 +1,149 @@
+package com.example.hotel;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.*;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+
+public class ReservationCalculator extends JFrame {
+    private JTextField[] fields = new JTextField[9]; // First 9 fields
+    private JLabel totalPriceLabel;
+
+    static {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Connection getConnection() throws SQLException {
+        String url = "jdbc:mysql://localhost:3306/hotel_db?useSSL=false&allowPublicKeyRetrieval=true";
+        return DriverManager.getConnection(url, "root", "");
+    }
+
+    public ReservationCalculator() {
+        setTitle("Hotel Reservation Calculator");
+        setSize(800, 600);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLayout(new GridLayout(10, 2, 10, 10));
+
+        addLabels();
+        addFields();
+        addButton();
+        addTotalPriceDisplay();
+
+        setVisible(true);
+    }
+
+    private void addLabels() {
+        add(new JLabel("First Name:"));
+        add(new JLabel("Last Name:"));
+        add(new JLabel("Email:"));
+        add(new JLabel("Arrival Date:"));
+        add(new JLabel("Departure Date:"));
+        add(new JLabel("Room Type:"));
+        add(new JLabel("Adults:"));
+        add(new JLabel("Children:"));
+        add(new JLabel("Promo Code:"));
+        add(new JLabel("Total Price:"));
+    }
+
+    private void addFields() {
+        for (int i = 0; i < 9; i++) {
+            JTextField field = new JTextField();
+            field.setEditable(false);
+            fields[i] = field;
+            add(field);
+        }
+        add(totalPriceLabel = new JLabel());
+    }
+
+    private void addButton() {
+        JButton loadButton = new JButton("Load Last Reservation");
+        loadButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                loadLastReservation();
+            }
+        });
+        add(loadButton);
+    }
+
+    private void addTotalPriceDisplay() {
+        totalPriceLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        totalPriceLabel.setForeground(Color.BLUE);
+        add(new JLabel()); // Empty space for alignment
+    }
+
+    private void loadLastReservation() {
+        try (Connection conn = getConnection()) {
+            String sql = "SELECT r.*, p.discount FROM reservations r " +
+                        "LEFT JOIN promo_codes p ON r.promo_code = p.code " +
+                        "ORDER BY id DESC LIMIT 1";
+            try (PreparedStatement stmt = conn.prepareStatement(sql);
+                 ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    setFields(rs);
+                    calculateTotalPrice(rs.getDouble("discount"));
+                } else {
+                    JOptionPane.showMessageDialog(this, "No reservations found!");
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
+        }
+    }
+
+    private void setFields(ResultSet rs) throws SQLException {
+        fields[0].setText(rs.getString("first_name"));
+        fields[1].setText(rs.getString("last_name"));
+        fields[2].setText(rs.getString("email"));
+        fields[3].setText(rs.getString("arrival_date"));
+        fields[4].setText(rs.getString("departure_date"));
+        fields[5].setText(rs.getString("room_type"));
+        fields[6].setText(rs.getString("adults"));
+        fields[7].setText(rs.getString("children"));
+        fields[8].setText(rs.getString("promo_code"));
+    }
+
+    private void calculateTotalPrice(double discount) {
+        try (Connection conn = getConnection()) {
+            String roomType = fields[5].getText();
+            String arrival = fields[3].getText();
+            String departure = fields[4].getText();
+
+            double basePrice = getRoomPrice(conn, roomType);
+            int nights = (int) ChronoUnit.DAYS.between(
+                LocalDate.parse(arrival),
+                LocalDate.parse(departure)
+            );
+
+            double totalPrice = basePrice * nights;
+            double discountAmount = (discount / 100) * totalPrice;
+            totalPrice -= discountAmount;
+
+            totalPriceLabel.setText("Total: $" + String.format("%.2f", totalPrice));
+        } catch (Exception e) {
+            totalPriceLabel.setText("Error calculating price!");
+        }
+    }
+
+    private double getRoomPrice(Connection conn, String roomType) throws SQLException {
+        String sql = "SELECT price_per_night FROM rooms WHERE room_type = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, roomType);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) return rs.getDouble("price_per_night");
+        }
+        return 0;
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(ReservationCalculator::new);
+    }
+}

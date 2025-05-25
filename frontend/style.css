@@ -1,0 +1,447 @@
+/* Color Scheme */
+:root {
+    --primary-green: #667f5f;
+    --light-gray: #f9fbf8;
+}
+
+body {
+    font-family: 'Open Sans', sans-serif;
+    color: #212121;
+    line-height: 1.6;
+    scroll-behavior: smooth;
+}
+
+body::-webkit-scrollbar-track {
+	background-color: #f9fbf8;
+}
+
+body::-webkit-scrollbar {
+	width: 8px;
+	background-color: #f9fbf8;
+}
+
+body::-webkit-scrollbar-thumb {
+	background-color: #667f5f;
+}
+
+h1 {
+    font-family: "Cormorant Garamond";
+}
+
+/* Navbar Styles */
+.top-anchor {
+    height: 100px;
+    visibility: hidden;
+}
+
+.navbar {
+    transition: padding 0.3s ease, opacity 0.3s ease;
+    padding: 2rem 1rem;
+    background-color: #e6e9e2;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navbar span {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 1.7em;
+}
+.navbar-nav {
+    text-transform: uppercase;
+    column-gap: 2em;
+    font-family: "Cormorant Garamond", serif;
+    font-size: 1.2rem;
+}
+.navbar-nav a:hover {
+    font-weight: 600;
+    transition: all 0.3s ease-in-out;
+}
+
+.navbar.condensed {
+    padding: 0.5rem 1rem;
+}
+
+.navbar.condensed .navbar-brand i {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.navbar.condensed .navbar-brand span {
+    margin-left: -20px;
+    transition: margin-left 0.3s ease;
+}
+
+/* Navbar Link Hover Effects */
+.navbar .nav-link {
+    position: relative;
+    transition: color 0.3s;
+}
+
+.navbar .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: var(--primary-green);
+    transition: width 0.3s;
+}
+
+.navbar .nav-link:hover {
+    color: var(--primary-green) !important;
+}
+
+.navbar .nav-link:hover::after {
+    width: 100%;
+}
+
+/* Button Styles */
+.btn-success {
+    background-color: var(--primary-green) !important;
+    border-color: var(--primary-green) !important;
+    transition: all 0.3s;
+}
+
+.btn-success:hover {
+    background-color: #4CAF50 !important;
+    border-color: #4CAF50 !important;
+}
+
+.btn-outline-success {
+    color: var(--primary-green) !important;
+    border-color: var(--primary-green) !important;
+    transition: all 0.3s;
+}
+
+.btn-outline-success:hover {
+    background-color: var(--primary-green) !important;
+    color: #fff !important;
+}  
+
+/* Hero Section */
+.hero-section {
+    background-image: url(assets/hero-bg.jpg);
+    background-size: cover;
+    height: 75vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.15);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to top right, rgba(0, 0, 0, 0.5), transparent);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.hero-section h1 {
+    font-family: "Montserrat", sans-serif;
+}
+
+.hero-section .container {
+    position: relative;
+    z-index: 2; 
+}
+
+/* Booking Form Container */
+.booking-form-container {
+    max-width: 70vw;
+    margin: 0 auto;
+    margin-top: -5vh;
+}
+
+.booking-form-container .bg-light {
+    background-color: #F5F5F5;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.booking-form-container .form-control,
+.booking-form-container .form-select {
+    border-radius: 30px; 
+    padding: 0.75rem; 
+    width: 100%;
+}
+
+.booking-form-container .btn-success {
+    background-color: #667f5f;
+    color: #fff;
+    border-color: #667f5f;
+    border-radius: 30px;
+    padding: 0.75rem 1.5rem; 
+    font-weight: 500;
+}
+
+.fa-calendar-alt, .fa-users {
+    color: #667f5f;
+}
+
+.booking-form-container .col:not(:last-child) {
+    border-right: 1px solid #ddd; 
+    padding-right: 1.2vw;
+    width: 13vw;
+}
+
+.booking-form-container .row {
+    display: flex;
+    gap: 1rem; 
+}
+
+/* Modal Styling */
+#bookingModal .modal-dialog {
+    max-width: 40vw; 
+    width: 100%; 
+}
+
+#bookingModal .modal-content {
+    border-radius: 30px;
+}
+
+#bookingModal .modal-body {
+    padding: 2rem;
+}
+
+#bookingModal .form-control,
+#bookingModal .form-select {
+    border-radius: 30px;
+    padding: 0.75rem;
+}
+
+#bookingModal .form-label {
+    font-weight: 500;
+}
+
+#bookingModal .btn-success {
+    background-color: #667f5f;
+    color: #fff;
+    border-color: #667f5f;
+    border-radius: 30px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+#bookingModal .btn-success:hover {
+    background-color: #4CAF50 !important;
+    border-color: #4CAF50 !important;
+    transform: scale(1.05);
+}
+
+/* Section Animations */
+section, .booking-form-container {
+    opacity: 0;
+    transform: translateY(100px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+section.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+section.exiting-up {
+    transform: translateY(-100px);
+}
+
+section.exiting-down {
+    transform: translateY(100px);
+}
+
+/* Photo Gallery */
+.photo-gallery {
+    margin-top: 20vh;
+}
+
+.photo-gallery h2 {
+    font-size: 3rem;
+    font-weight: bold;
+    line-height: 1.2;
+}
+.photo-gallery img {
+    transition: transform 0.3s ease;
+}
+
+.photo-gallery img:hover {
+    transform: scale(1.05);
+}
+
+.photo-gallery .btn-outline-success {
+    border-radius: 30px;
+    padding: 0.75rem 1.5rem;
+}
+
+/* Available Rooms */
+.available-rooms {
+    background-color: #e6e9e2;
+    margin-top: 10vh;
+    padding: 5vh 0 5vh 0;
+}
+.available-rooms .card {
+    transition: box-shadow 0.3s ease;
+}
+
+.available-rooms .card:hover {
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.available-rooms .card img {
+    height: 250px; /* Adjust as needed */
+    object-fit: cover;
+}
+.available-rooms .card-body {
+    padding: 1rem;
+}
+.available-rooms .card-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+.available-rooms .card-text {
+    color: #6c757d;
+}
+.available-rooms .btn-success {
+    background-color: #667f5f !important;
+    border-color: #667f5f !important;
+    transition: all 0.3s;
+}
+.available-rooms .btn-success:hover {
+    background-color: #4CAF50 !important;
+    border-color: #4CAF50 !important;
+}
+
+/* Services Section */
+.services {
+    margin-top: 10vh;
+    font-family: "Cormorant Garamond";
+}
+.services h2 {
+    font-weight: 600;
+}
+.services p {
+    font-size: 1.5rem;
+}
+.services .row > div:first-child {
+    order: 2;
+}
+.services .row > div:last-child {
+    order: 1;
+}
+
+/* Customer Reviews */
+.customer-reviews {
+    background-color: #e6e9e2;
+    margin-top: 10vh;
+    padding: 5vh 0;
+}
+.review-container {
+    position: relative;
+}
+.review-card {
+    background-color: #fff;
+    padding: 2vh 2vw;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 750px;
+    margin: 0 auto;
+}
+.review-quote {
+    position: relative;
+    font-style: italic;
+    font-size: 1rem;
+    line-height: 1.5;
+    padding: 1em 1em 0 1em;
+    font-family: "Cormorant Garamond", serif;
+    font-size: 1.3em;
+}
+.review-quote i {
+    position: absolute;
+    top: -7vh;
+    left: -1vw;
+    color: #667f5f;
+}
+.review-details {
+    margin-top: 20px;
+    font-family: "Poppins";
+    font-size: 0.9em;
+    line-height: 1.2em;
+    font-weight: 600;
+}
+.stars i {
+    color: #FFD700;
+}
+.profile-thumbnails {
+    margin: 5vh 0 3vh 0;
+}
+.profile-thumbnails img {
+    cursor: pointer;
+    transition: transform 0.5s ease, opacity 0.5s ease;
+    margin: 0 0.8vw;
+}
+.profile-thumbnails img.active {
+    transform: scale(2.5) translateY(0%);
+    margin: 0 1.5vw;
+    opacity: 1;
+    z-index: 10;
+}
+.profile-thumbnails img.inactive {
+    transform: scale(1.5) translateY(0);
+    opacity: 0.7;
+    z-index: 1;
+}
+.review-navigation button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #667f5f;
+    font-size: 24px;
+    cursor: pointer;
+}
+.review-navigation .prev-review {
+    left: 0;
+}
+.review-navigation .next-review {
+    right: 0;
+}
+
+/* Footer */
+footer {
+    background-color: #667f5f !important;
+    padding: 5rem 0;
+    font-family: "Cormorant Garamond", serif;
+    font-weight: 400;
+    font-size: 1.1em;
+}
+footer .container {
+    color: #fff !important;
+}
+footer a {
+    color: #fff;
+}
+footer a:hover {
+    color: #474a3b !important;
+    transition: all 0.5s ease-in-out;
+}
+.footer-end {
+    background-color: #465a41;
+    color: #fff;
+    font-size: 1rem;
+    font-family: "Cormorant Garamond", serif;
+    letter-spacing: 1px;
+}
+.footer-end a {
+    letter-spacing: 5px;
+    color: #fff;
+}
+.footer-end .container {
+    padding: 0.5vh 0;
+}

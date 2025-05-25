@@ -1,0 +1,5 @@
+package com.example.hotel; // Add this at the top
+
+public class ReservationCalculator {
+
+}

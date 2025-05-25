@@ -1,0 +1,229 @@
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.awt.event.*;
+import java.sql.*;
+import java.text.DecimalFormat;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+
+public class HotelManagementSystem extends JFrame {
+    private static final long serialVersionUID = 1L;
+    private static final String USERNAME = "admin";
+    private static final String PASSWORD = "admin";
+
+    private JTable reservationTable;
+    private JLabel[] detailLabels = new JLabel[9];
+    private JLabel totalAmountLabel;
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            // Login screen
+            JFrame loginFrame = new JFrame("Login");
+            loginFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            loginFrame.setSize(300, 200);
+            loginFrame.setLayout(new GridLayout(3, 2));
+
+            JTextField usernameField = new JTextField();
+            JPasswordField passwordField = new JPasswordField();
+            JButton loginButton = new JButton("Login");
+
+            loginFrame.add(new JLabel("Username:"));
+            loginFrame.add(usernameField);
+            loginFrame.add(new JLabel("Password:"));
+            loginFrame.add(passwordField);
+            loginFrame.add(loginButton);
+            loginFrame.setVisible(true);
+
+            loginButton.addActionListener(e -> {
+                String enteredUsername = usernameField.getText();
+                char[] enteredPassword = passwordField.getPassword();
+
+                if (enteredUsername.equals(USERNAME) && 
+                    new String(enteredPassword).equals(PASSWORD)) {
+                    loginFrame.dispose();
+                    new HotelManagementSystem().setVisible(true);
+                } else {
+                    JOptionPane.showMessageDialog(loginFrame, 
+                        "Invalid username/password", "Error", 
+                        JOptionPane.ERROR_MESSAGE);
+                }
+            });
+        });
+    }
+
+    public HotelManagementSystem() {
+        setTitle("Hotel Management System");
+        setSize(1200, 800);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+        
+        // Create components
+        JPanel detailPanel = new JPanel(new GridLayout(9, 2, 10, 10));
+        for (int i = 0; i < 9; i++) {
+            detailLabels[i] = new JLabel();
+            detailPanel.add(new JLabel(getLabelNames()[i]));
+            detailPanel.add(detailLabels[i]);
+        }
+        
+        JPanel buttonPanel = new JPanel();
+        JButton calculateButton = new JButton("Calculate");
+        calculateButton.addActionListener(new CalculateListener());
+        buttonPanel.add(calculateButton);
+        
+        // Table setup
+        String[] columns = {"ID", "First Name", "Last Name", "Email", 
+                           "Arrival", "Departure", "Room Type", 
+                           "Adults", "Children", "Promo"};
+        DefaultTableModel model = new DefaultTableModel(columns, 0);
+        reservationTable = new JTable(model);
+        JScrollPane scrollPane = new JScrollPane(reservationTable);
+
+        // Add components
+        add(scrollPane, BorderLayout.CENTER);
+        add(detailPanel, BorderLayout.EAST);
+        add(buttonPanel, BorderLayout.SOUTH);
+        
+        // Populate table on startup
+        populateReservationTable();
+        
+        // Add row selection listener
+        reservationTable.getSelectionModel().addListSelectionListener(
+            e -> updateDetailsFromSelection()
+        );
+    }
+
+    private String[] getLabelNames() {
+        return new String[]{
+            "First Name:", "Last Name:", "Email:",
+            "Arrival Date:", "Departure Date:", "Room Type:",
+            "Adults:", "Children:", "Promo Code:"
+        };
+    }
+
+    private void populateReservationTable() {
+        try (Connection conn = getConnection()) {
+            String sql = "SELECT r.*, p.discount FROM reservations r " +
+                        "LEFT JOIN promo_codes p ON r.promo_code = p.code";
+            try (PreparedStatement stmt = conn.prepareStatement(sql);
+                 ResultSet rs = stmt.executeQuery()) {
+                
+                DefaultTableModel model = (DefaultTableModel) reservationTable.getModel();
+                model.setRowCount(0); // Clear existing data
+
+                while (rs.next()) {
+                    Object[] row = {
+                        rs.getInt("id"),
+                        rs.getString("first_name"),
+                        rs.getString("last_name"),
+                        rs.getString("email"),
+                        rs.getDate("arrival_date"),
+                        rs.getDate("departure_date"),
+                        rs.getString("room_type"),
+                        rs.getInt("adults"),
+                        rs.getInt("children"),
+                        rs.getString("promo_code")
+                    };
+                    model.addRow(row);
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error loading reservations");
+        }
+    }
+
+    private void updateDetailsFromSelection() {
+        int selectedRow = reservationTable.getSelectedRow();
+        if (selectedRow >= 0) {
+            DefaultTableModel model = (DefaultTableModel) reservationTable.getModel();
+            
+            // Clear previous details
+            for (JLabel label : detailLabels) {
+                label.setText("");
+            }
+            
+            // Update labels with selected reservation details
+            for (int i = 0; i < detailLabels.length; i++) {
+                detailLabels[i].setText(
+                    model.getValueAt(selectedRow, i+1).toString() // Skip ID column
+                );
+            }
+        }
+    }
+
+    private Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(
+            "jdbc:mysql://localhost:3306/hotel_db?useSSL=false&allowPublicKeyRetrieval=true",
+            "root", ""
+        );
+    }
+
+    private class CalculateListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try (Connection conn = getConnection()) {
+                int selectedRow = reservationTable.getSelectedRow();
+                if (selectedRow < 0) {
+                    JOptionPane.showMessageDialog(
+                        HotelManagementSystem.this, 
+                        "Please select a reservation"
+                    );
+                    return;
+                }
+
+                DefaultTableModel model = (DefaultTableModel) reservationTable.getModel();
+                String roomType = model.getValueAt(selectedRow, 6).toString();
+                LocalDate arrival = 
+                    LocalDate.parse(model.getValueAt(selectedRow, 4).toString());
+                LocalDate departure = 
+                    LocalDate.parse(model.getValueAt(selectedRow, 5).toString());
+                double discount = 
+                    Double.parseDouble(model.getValueAt(selectedRow, 9).toString());
+
+                double basePrice = getRoomPrice(conn, roomType);
+                long nights = ChronoUnit.DAYS.between(arrival, departure);
+
+                double total = basePrice * nights;
+                if (discount > 0) {
+                    total -= total * (discount / 100);
+                }
+
+                DecimalFormat df = new DecimalFormat("#,##0.00");
+                JOptionPane.showMessageDialog(
+                    HotelManagementSystem.this, 
+                    "Total Amount: ₱" + df.format(total), 
+                    "Calculation Result", 
+                    JOptionPane.INFORMATION_MESSAGE
+                );
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(
+                    HotelManagementSystem.this, 
+                    "Error calculating total: " + ex.getMessage(),
+                    "Error", 
+                    JOptionPane.ERROR_MESSAGE
+                );
+            }
+        }
+
+        private double getRoomPrice(Connection conn, String roomType) 
+            throws SQLException {
+            String sql = "SELECT price_per_night FROM rooms WHERE room_type = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setString(1, roomType);
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next()) return rs.getDouble("price_per_night");
+            }
+            return 0;
+        }
+    }
+
+    // Database connection setup
+    static {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch (ClassNotFoundException ex) {
+            ex.printStackTrace();
+        }
+    }
+}
